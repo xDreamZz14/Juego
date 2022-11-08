@@ -1,2 +1,2 @@
-# Primer projecto
-### Pequeño juego de texto
+# First project
+### Thanks for reading
