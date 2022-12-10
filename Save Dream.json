@@ -1,0 +1,14 @@
+{
+    "nombre": "Dream",
+    "nivel": 1,
+    "exp": 0,
+    "clase": "Canalla",
+    "ataque": 4,
+    "dinero": 0,
+    "salud": 40,
+    "defensa": 7,
+    "saludMaxima": 40,
+    "mascotas": [],
+    "pociones": [],
+    "armaduras": []
+}
