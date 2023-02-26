@@ -3,6 +3,7 @@ import os
 from time import sleep
 from Clases import *
 
+# Hacer una funcion que permita cargar la partida al morir
 """
 def cargarPartida():
     lArchivos = os.listdir()  # listdir devuelve lista de archivos en una carpeta, si no pones nada muestra la carpeta actual
@@ -44,8 +45,10 @@ def matarMonstruo():
         irCiudad = input("(Si/No)¿Quieres ir a la ciudad?: ")
         if irCiudad == "Si":
             menuCiudad()
-        else:
-            print("Gracias por jugar")  #Evitar que salte a sMonstruo
+        elif irCiudad == "No":
+            print("Gracias por jugar")
+            return irCiudad
+
 
     while sMonstruo != "1" and sMonstruo != "2":
         sMonstruo = input("¿A que monstruo quieres atacar?:\n1.Orco\n2.Vaca\n")
@@ -152,10 +155,14 @@ def menuCiudad():
             gato = Mascota("Gato", 5, 3, 0, 35)
             dragon = Mascota("Dragon", 45, 70, 18, 560)
             cMascota = input("¿Que mascota deseas comprar?:\n1. " + perro.nombre  # c = comprar
-                             + "  Precio: " + str(perro.precio) + "\n2. "
-                             + gato.nombre + "  Precio: " + str(gato.precio)
-                             + "\n3. " + dragon.nombre + "  Precio: " + str(dragon.precio))
-            if cMascota == "1":  # Hacer que muestre los stats al jugador
+                             + "  Precio: " + str(perro.precio) + "\nStats perro: " + "Salud: "
+                             + str(perro.bsalud) + str(perro.bataque) + " Defensa: " +str(perro.bdefensa)
+                             + "\n2. " + gato.nombre + "  Precio: " + str(gato.precio) + " Stats gato:" +
+                             " Salud: " + str(gato.salud) + " Ataque: " + str(gato.bataque) +
+                             " Defensa: " + str(gato.bdefensa) + "\n3. " + dragon.nombre + "  Precio: " +
+                             str(dragon.precio) + " Stats dragon: " + "Salud: " + str(dragon.bsalud) +
+                             " Ataque: " + str(dragon.bataque) + " Defensa: " + str(dragon.bdefensa))
+            if cMascota == "1":
                 if personaje.dinero >= perro.precio:
                     personaje.ataque = personaje.ataque + perro.bataque
                     personaje.defensa = personaje.defensa + perro.bdefensa
@@ -690,9 +697,9 @@ lArchivos = os.listdir()  # listdir devuelve lista de archivos en una carpeta, s
 nSave = ""
 dPersonaje = {}
 while nSave not in lArchivos:
-    cPartida = input("(Si/No)Quieres cargar una partida: ")
-    if cPartida == "Si":  # c = Cargar
-        cPersonaje = input("Introduce el nombre de tu personaje: ")
+    cPartida = input("(Si/No)Quieres cargar una partida: ").lower()
+    if cPartida == "si":  # c = Cargar
+        cPersonaje = input("Introduce el nombre de tu personaje: ").capitalize()
         nSave = "Save " + cPersonaje + ".json"
         if nSave in lArchivos:
             with open("Save " + cPersonaje + ".json", "r") as save:
@@ -704,7 +711,7 @@ while nSave not in lArchivos:
         break  # Rompe el bucle while
 
 if dPersonaje == {}:
-    nombre = input("Introduce tu nombre: ")
+    nombre = input("Introduce tu nombre: ").capitalize()
     eclase = 0
     while eclase != 1 and eclase != 2:
         eclase = int(input("(Indica con un numero) Que clase quieres escoger: \n1.Canalla\n2.Bruja\n"))
@@ -738,8 +745,7 @@ else:  # Existen dPersonaje
                           dPersonaje["saludMaxima"],
                           dPersonaje["mascotas"],
                           dPersonaje["pociones"],
-                          dPersonaje["armaduras"]
-    )
+                          dPersonaje["armaduras"])
     print("Se han cargado los datos de " + personaje.nombre)
 
 matarMonstruo()
@@ -751,7 +757,7 @@ else:
           " monstruos\n" + "Nivel: " + str(personaje.nivel)
           + "EXP: " + str(personaje.exp))
 """
-# Hacer una clase Ciudad y dar opciones
+# Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades
 
 """
 class Ciudad:
@@ -761,9 +767,6 @@ class Ciudad:
 
 c1 = Ciudad("Estivania",1)
 c2 = Ciudad("Zanarkand",8)
-c3 = Ciudad("Nya<3",20) # Ciudad de Emi, poner easter eggs
-
-
 """
 
 """
