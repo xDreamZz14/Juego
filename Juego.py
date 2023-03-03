@@ -1,11 +1,20 @@
 import os
 
 from time import sleep
-from Clases import *
+from Clases import *  # Importa todas las clases y metodos de Clases.py
 
 
 
 def cargarPartida():
+    """
+    Busca en el directorio un archivo .json con el nombre indicado
+    y en caso de existir lo abre y crea una instancia de personaje
+    con los atributos y objetos guardados.
+
+    En caso de no existir, se lo indica al usuario y le lleva
+    a la creacion de personaje.
+    :return:
+    """
     lArchivos = os.listdir()  # listdir devuelve lista de archivos en una carpeta, si no pones nada muestra la carpeta actual
     nSave = ""
     while nSave not in lArchivos:
@@ -36,16 +45,35 @@ def cargarPartida():
 
 
 def muertePersonaje():
-        cargarMuerte = input("(Si/No) ¿Deseas cargar la partida?: ").capitalize()
-        if cargarMuerte == "Si":
-            sleep(0.2)
-            personaje = cargarPartida()
-            return personaje
-        else:
-            print("Game over, gracias por jugar")
-            exit()
+    """
+    Se llama en caso de que la salud del personaje llegue a 0.
+
+    Permite elegir al usuario si quiere cargar la partida y llama a la funcion cargarPartida(),
+    y en caso de que no, para el juego.
+    :return:
+    """
+    cargarMuerte = input("(Si/No) ¿Deseas cargar la partida?: ").capitalize()
+    if cargarMuerte == "Si":
+        sleep(0.2)
+        personaje = cargarPartida()
+        return personaje
+    else:
+        print("Game over, gracias por jugar")
+        exit()
 
 def matarMonstruo(personaje):
+    """
+    Toma como argumento la instancia de personaje y permite pelear
+    contra diferentes tipos de monstruos, con stats propios cada uno instanciados dentro de la funcion.
+
+    Permite repetirlo hasta que el usuario indique que quiere parar y da la opcion de parar el juego
+    o de ir a la ciudad con la funcion menuCiudad().
+
+    En caso de muerte de el personaje, permite cargar los ultimos datos del personaje con muertePersonaje().
+
+    :param personaje:
+    :return:
+    """
     orco = Monstruo("Orco", 20, 5, 8, 5)
     vaca = Monstruo("Vaca", 6, 2, 3, 2)
     atacarMonstruo = ""
@@ -153,6 +181,12 @@ def matarMonstruo(personaje):
 
 
 def seguirCiudad():
+    """
+    Despues de cada accion en la ciudad, da la opcion de poder seguir realizando diferentes cosas
+    en la ciudad o en caso de no querer, regresar a matar monstruos o terminar la partida.
+
+    :return:
+    """
     seguir = input("(Si/No)¿Deseas seguir en la ciudad?: ").capitalize()
     if seguir == "Si":
         sleep(0.5)
@@ -169,6 +203,23 @@ def seguirCiudad():
 
 
 def menuCiudad():
+    """
+    Le pide al usuario que indique la accion que desea hacer.
+
+    accion == 1: Restaura la salud del personaje actualizando el valor de la misma con su salud
+    maxima e indica al usuario la salud recuperada.
+
+    accion == 2: Permite al jugador decidir que desea comprar y le muestra nombre,stats y precio
+    de cada articulo a la venta. Cuando lo compra añade el objeto al inventario del personaje
+    con la funcion str.append()
+
+    accion == 3: Guarda el progeso realizado hasta el momento junto con todos los objetos
+     que contiene el personaje y lo almacena en un archivo .json .
+
+    accion == 4: Devuelve al jugador a la funcion matarMonstruo().
+
+    :return:
+    """
     accion = input("Bienvenido a Estivania, ¿Que quieres hacer?:\n1. Descansar\n2. Comprar"
                    "\n3. Guardar\n4. Salir a cazar\n").capitalize()
     if accion == "1" or accion == "Descansar":
@@ -333,6 +384,12 @@ def menuCiudad():
         matarMonstruo(personaje)
 
 def comprarCasco():
+    """
+    Crea una instancia para cada casco y le muestra al usuario todos los atributos de los mismos.
+    Lo añade al inventario del personaje en caso de comprarlo y le añade los stats que contiene.
+
+    :return:
+    """
     casco1 = Armadura("Gorro de cuero","Canalla",3,15,75)
     casco2 = Armadura("Tiara","Bruja",5,10,150)
     casco3 = Armadura("Casco del inmortal","",45,83,480)
@@ -435,6 +492,13 @@ def comprarCasco():
         seguirCiudad()
 
 def comprarPechera():
+    """
+    Crea una instancia para cada pechera/armadura y le muestra al usuario todos los atributos
+    de los mismos. Lo añade al inventario del personaje en caso de comprarlo y le añade
+    los stats que contiene.
+
+    :return:
+    """
     pechera1 = Armadura("Toga de cuero","Canalla",15,35,125)
     pechera2 = Armadura("Armadura oxidada","Bruja",8,25,150)
     pechera3 = Armadura("Malla reluciente","",70,200,670)
@@ -537,6 +601,12 @@ def comprarPechera():
         seguirCiudad()
 
 def comprarPantalon():
+    """
+    Crea una instancia para cada pantalon y le muestra al usuario todos los atributos de los mismos.
+    Lo añade al inventario del personaje en caso de comprarlo y le añade los stats que contiene.
+
+    :return:
+    """
     pantalon1 = Armadura("Pantalones de asesino","Canalla",8,23,90)
     pantalon2 = Armadura("Grebas de amazona","Bruja",5,17,85)
     pantalon3 = Armadura("Pantalones de la orden",60,170,585)
@@ -638,6 +708,12 @@ def comprarPantalon():
         seguirCiudad()
 
 def comprarBotas():
+    """
+    Crea una instancia para cada bota y le muestra al usuario todos los atributos de los mismos.
+    Lo añade al inventario del personaje en caso de comprarlo y le añade los stats que contiene.
+
+    :return:
+    """
     botas1 = Armadura("Botas de cuero","Canalla",2,10,50)
     botas2 = Armadura("Zapatos de caballeria","Bruja",3,7,55)
     botas3 = Armadura("Zapatillas de runner","",30,70,400)
@@ -746,6 +822,7 @@ if cPartida == "Si":
     menuCiudad()
 
 if not personaje:  # == None
+    sleep(0.2)
     nombre = input("Introduce tu nombre: ").capitalize()
     eclase = 0
     while eclase != 1 and eclase != 2:
@@ -780,7 +857,6 @@ else:
 """
 # TODO Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades
 # TODO Separar las clases y funciones en diferentes .py con nombres identificativos
-# TODO Documentar las funciones y clases
 """
 class Ciudad:
     def __init__(self,nombre,nivelr)
@@ -789,6 +865,7 @@ class Ciudad:
 
 estivania = Ciudad("Estivania",1)
 zanarkand = Ciudad("Zanarkand",8)
+meowyork = Ciudad("MeowYork",20)
 """
 
 """
