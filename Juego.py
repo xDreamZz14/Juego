@@ -815,6 +815,7 @@ def comprarBotas():
         sleep(0.2)
         seguirCiudad()
 
+# Inicio del juego
 cPartida = input("(Si/No)¿Deseas cargar una partida?: ").capitalize()
 personaje = None
 if cPartida == "Si":
@@ -857,16 +858,6 @@ else:
 """
 # TODO Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades
 # TODO Separar las clases y funciones en diferentes .py con nombres identificativos
-"""
-class Ciudad:
-    def __init__(self,nombre,nivelr)
-        self.nombre = nombre
-        self.nivelr = nivelr   #nivelr = nivelrequerido
-
-estivania = Ciudad("Estivania",1)
-zanarkand = Ciudad("Zanarkand",8)
-meowyork = Ciudad("MeowYork",20)
-"""
 
 """
 dream = Personaje(1,0)

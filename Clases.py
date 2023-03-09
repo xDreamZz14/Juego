@@ -261,3 +261,14 @@ class Armadura:
         self.defensa = defensa
         self.salud = salud
         self.precio = precio
+
+"""
+class Ciudad:
+    def __init__(self,nombre,nivelr)
+        self.nombre = nombre
+        self.nivelr = nivelr   #nivelr = nivelrequerido
+
+estivania = Ciudad("Estivania",1)
+zanarkand = Ciudad("Zanarkand",8)
+meowyork = Ciudad("MeowYork",20)
+"""
