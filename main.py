@@ -3,8 +3,8 @@ import os
 from time import sleep
 from Clases import *  # Importa todas las clases y metodos de Clases.py
 
-
-
+# TODO: Aumentar la exp requerida para subir cada nivel
+# TODO: Equipar/Desequipar mascotas y equipo
 def cargarPartida():
     """
     Busca en el directorio un archivo .json con el nombre indicado
@@ -101,6 +101,10 @@ def matarMonstruo(personaje):
     if sMonstruo == "1" or sMonstruo == "Orco":
         while orco.salud > 0:
             personaje.atacarMonstruo(personaje.ataque, orco)
+            if personaje.salud <= personaje.saludMaxima * 0.3:
+                usarPot = input(f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
+                if usarPot == "Si":
+                    personaje.usarPocion()
             if orco.salud > 0:
                 orco.atacarPersonaje(orco.ataque, personaje)
             sleep(0.5)
@@ -117,6 +121,10 @@ def matarMonstruo(personaje):
     if sMonstruo == "2" or sMonstruo == "Vaca":
         while vaca.salud > 0:
             personaje.atacarMonstruo(personaje.ataque, vaca)
+            if personaje.salud <= personaje.saludMaxima * 0.3:
+                usarPot = input(f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
+                if usarPot == "Si":
+                    personaje.usarPocion()
             if vaca.salud > 0:
                 vaca.atacarPersonaje(vaca.ataque, personaje)
             sleep(1)
@@ -141,6 +149,11 @@ def matarMonstruo(personaje):
                 orco = Monstruo("Orco", 20, 5, 8, 5)
                 while orco.salud > 0:
                     personaje.atacarMonstruo(personaje.ataque, orco)
+                    if personaje.salud <= personaje.saludMaxima * 0.3:
+                        usarPot = input(
+                            f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
+                        if usarPot == "Si":
+                            personaje.usarPocion()
                     if orco.salud > 0:
                         orco.atacarPersonaje(orco.ataque, personaje)
                     sleep(1)
@@ -157,6 +170,11 @@ def matarMonstruo(personaje):
                 vaca = Monstruo("Vaca", 6, 2, 3, 2)
                 while vaca.salud > 0:
                     personaje.atacarMonstruo(personaje.ataque, vaca)
+                    if personaje.salud <= personaje.saludMaxima * 0.3:
+                        usarPot = input(
+                            f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
+                        if usarPot == "Si":
+                            personaje.usarPocion()
                     if vaca.salud > 0:
                         vaca.atacarPersonaje(vaca.ataque, personaje)
                     sleep(1)
@@ -817,12 +835,15 @@ def comprarBotas():
 
 # Inicio del juego
 cPartida = input("(Si/No)¿Deseas cargar una partida?: ").capitalize()
+while cPartida != "Si" and cPartida != "No":
+    cPartida = input("(Si/No)¿Deseas cargar una partida?: ").capitalize()
 personaje = None
 if cPartida == "Si":
     personaje = cargarPartida()
-    menuCiudad()
+    if personaje:
+        menuCiudad()
 
-if not personaje:  # == None
+if not personaje: # == None
     sleep(0.2)
     nombre = input("Introduce tu nombre: ").capitalize()
     eclase = 0
@@ -849,17 +870,16 @@ if not personaje:  # == None
 
 matarMonstruo(personaje)
 
+
+# TODO Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades
+# TODO Separar las clases y funciones en diferentes .py con nombres identificativos
 """
 else:
     print("Gracias por jugar!!!\n" + personaje.nombre +
           " ha matado a " + str(totalMonstruo) +
           " monstruos\n" + "Nivel: " + str(personaje.nivel)
           + "EXP: " + str(personaje.exp))
-"""
-# TODO Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades
-# TODO Separar las clases y funciones en diferentes .py con nombres identificativos
 
-"""
 dream = Personaje(1,0)
 print(dream.nivel,dream.exp)
 dream.ganarExp(20)

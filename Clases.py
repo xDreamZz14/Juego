@@ -1,4 +1,5 @@
 import json
+from time import sleep
 
 class Personaje:
     """
@@ -64,7 +65,7 @@ class Personaje:
             self.nivel = self.nivel + 1
             self.exp = self.exp - 20
             if self.clase == "Bruja":
-                self.ataque = self.ataque + 5
+                self.ataque = self.ataque + 2
                 self.salud = self.salud + 8
                 self.defensa = self.defensa + 6
                 self.saludMaxima = self.saludMaxima + 8
@@ -137,6 +138,32 @@ class Personaje:
                                 str(self.defensa) + "," +
                                 str(self.saludMaxima) + "," + str(self.mascotas) +
                              "," + str(self.pociones) + "," + str(self.armaduras))
+
+    def usarPocion(self):
+        """
+        Metodo del personaje. Sirve para recuperar salud usando pociones almacenadas self.pociones.
+        En caso de no tener ninguna se lo indica al usuario.
+        Si la salud recuperada supera a la saludMaxima, actualiza self.salud para tener el valor maximo (self.saludMaxima)
+
+        :return:
+        """
+        if not self.pociones:
+            print("No hay pociones en el inventario")
+            sleep(0.5)
+        else:
+            pocion = input(f"¿Que pocion deseas usar?: {self.pociones}").capitalize()
+            if pocion not in self.pociones:
+                print(f"No tienes ninguna {pocion} ")
+                sleep(1)
+                self.usarPocion()
+            else:
+                for pot in self.pociones:
+                    if pocion == pot.nombre: #pot.content.capitalize()
+                        self.salud += pot.crecuperacion
+                        self.pociones.remove(pot)
+                        print(f"Has recuperado {pot.crecuperacion} de salud")
+                if self.salud > self.saludMaxima:
+                    self.salud = self.saludMaxima
 
 
 
