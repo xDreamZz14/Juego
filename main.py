@@ -1,10 +1,91 @@
 import os
-
-from time import sleep
 from Clases import *  # Importa todas las clases y metodos de Clases.py
 
-# TODO: Aumentar la exp requerida para subir cada nivel
-# TODO: Equipar/Desequipar mascotas y equipo
+
+# TODO: Almacen en la ciudad, Equipar/Desequipar mascotas y equipo
+# TODO: Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades y monstruos
+# TODO: Separar las clases y funciones en diferentes .py con nombres identificativos
+# TODO: Crear mazmorras
+
+
+def equipar(personaje, mascota, armadura):
+    """
+    Funcion que sirve para equipar y desequipar mascotas o armaduras.
+
+    :param personaje:
+    :param mascota:
+    :param armadura:
+    :return:
+    """
+
+    if mascota:
+        for m in personaje.mascotas:
+            if m["equipped"] == True and m["nombre"] != mascota.nombre:
+                m["equipped"] = False
+                personaje.ataque -= m["bataque"]
+                personaje.salud -= m["bsalud"]
+                personaje.defensa -= m["bdefensa"]
+
+            if m["nombre"] == mascota.nombre:
+                m["equipped"] = True
+                personaje.ataque += m["bataque"]
+                personaje.salud += m["bsalud"]
+                personaje.defensa += m["bdefensa"]
+
+    if armadura:
+        for a in personaje.armaduras:
+            if a["tipo"] == armadura.tipo:
+                if a["equipped"] == True and a["nombre"] != armadura.nombre:
+                    a["equipped"] = False
+                    personaje.salud -= a["salud"]
+                    personaje.defensa -= a["defensa"]
+
+                if a["nombre"] == armadura.nombre:
+                    a["equipped"] = True
+                    personaje.salud += a["salud"]
+                    personaje.defensa += a["defensa"]
+
+
+def appendInventory(personaje, mascota, pocion, armadura):
+    """
+    Funcion que guarda los diferentes objetos que se pueden comprar directamente al inventario de
+    el personaje mostrando todos los atributos de cada uno.
+
+    :param personaje:
+    :param mascota:
+    :param pocion:
+    :param armadura:
+    """
+    if mascota:
+        appendMascota = {
+            "nombre": mascota.nombre,
+            "bataque": mascota.bataque,
+            "bsalud": mascota.bsalud,
+            "bdefensa": mascota.bdefensa,
+            "equipped": mascota.equipped
+        }
+        personaje.mascotas.append(appendMascota)
+
+    if pocion:
+        appendPocion = {
+            "nombre": pocion.nombre,
+            "crecuperacion": pocion.crecuperacion,
+            "precio": pocion.precio,
+        }
+        personaje.pociones.append(appendPocion)
+
+    if armadura:
+        appendArmadura = {
+            "nombre": armadura.nombre,
+            "salud": armadura.salud,
+            "defensa": armadura.defensa,
+            "precio": armadura.precio,
+            "equipped": armadura.equipped,
+            "tipo": armadura.tipo
+        }
+        personaje.armaduras.append(appendArmadura)
+
+
 def cargarPartida():
     """
     Busca en el directorio un archivo .json con el nombre indicado
@@ -35,7 +116,8 @@ def cargarPartida():
                                       dPersonaje["saludMaxima"],
                                       dPersonaje["mascotas"],
                                       dPersonaje["pociones"],
-                                      dPersonaje["armaduras"])
+                                      dPersonaje["armaduras"],
+                                      dPersonaje["maxExp"])
                 print("Se han cargado los datos de " + personaje.nombre)
                 return personaje
 
@@ -60,6 +142,7 @@ def muertePersonaje():
     else:
         print("Game over, gracias por jugar")
         exit()
+
 
 def matarMonstruo(personaje):
     """
@@ -94,7 +177,6 @@ def matarMonstruo(personaje):
             print("Gracias por jugar")
             exit()
 
-
     while sMonstruo != "1" and sMonstruo != "2" and sMonstruo != "Orco" and sMonstruo != "Vaca":
         sMonstruo = input("¿A que monstruo quieres atacar?:\n1.Orco\n2.Vaca\n").capitalize()
         sleep(0.2)
@@ -102,7 +184,8 @@ def matarMonstruo(personaje):
         while orco.salud > 0:
             personaje.atacarMonstruo(personaje.ataque, orco)
             if personaje.salud <= personaje.saludMaxima * 0.3:
-                usarPot = input(f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
+                usarPot = input(
+                    f"Tienes {int(100 * personaje.salud / personaje.saludMaxima)}% de salud. ¿Quieres usar una pocion?: ").capitalize()
                 if usarPot == "Si":
                     personaje.usarPocion()
             if orco.salud > 0:
@@ -117,12 +200,12 @@ def matarMonstruo(personaje):
                       str(personaje.dinero))
             sleep(1)
 
-
     if sMonstruo == "2" or sMonstruo == "Vaca":
         while vaca.salud > 0:
             personaje.atacarMonstruo(personaje.ataque, vaca)
             if personaje.salud <= personaje.saludMaxima * 0.3:
-                usarPot = input(f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
+                usarPot = input(
+                    f"Tienes {100 * personaje.salud / personaje.saludMaxima}% de salud. ¿Quieres usar una pocion?: ").capitalize()
                 if usarPot == "Si":
                     personaje.usarPocion()
             if vaca.salud > 0:
@@ -219,7 +302,6 @@ def seguirCiudad():
             exit()
 
 
-
 def menuCiudad():
     """
     Le pide al usuario que indique la accion que desea hacer.
@@ -251,12 +333,13 @@ def menuCiudad():
         sTienda = input("¿Que deseas comprar?:\n1. Mascota\n2. Pociones\n3. Armadura\n4. Nada\n").capitalize()
         sleep(0.5)
         if sTienda == "1" or sTienda == "Mascota":
-            perro = Mascota("Perro", 2, 5, 1, 35)
-            gato = Mascota("Gato", 5, 3, 0, 35)
-            dragon = Mascota("Dragon", 45, 70, 18, 560)
+            perro = Mascota("Perro", 2, 5, 1, 35, False)
+            gato = Mascota("Gato", 5, 3, 0, 35, False)
+            dragon = Mascota("Dragon", 45, 70, 18, 560, False)
+
             cMascota = input("¿Que mascota deseas comprar?:\n1. " + perro.nombre  # c = comprar
                              + "  Precio: " + str(perro.precio) + " Stats perro: " + "Salud: "
-                             + str(perro.bsalud) + str(perro.bataque) + " Defensa: " +str(perro.bdefensa)
+                             + str(perro.bsalud) + str(perro.bataque) + " Defensa: " + str(perro.bdefensa)
                              + "\n2. " + gato.nombre + "  Precio: " + str(gato.precio) + " Stats gato:" +
                              " Salud: " + str(gato.bsalud) + " Ataque: " + str(gato.bataque) +
                              " Defensa: " + str(gato.bdefensa) + "\n3. " + dragon.nombre + "  Precio: " +
@@ -264,56 +347,85 @@ def menuCiudad():
                              " Ataque: " + str(dragon.bataque) + " Defensa: " + str(dragon.bdefensa) +
                              "\n4. No comprar\n").capitalize()
             sleep(0.5)
-            if cMascota == "1" or cMascota == "Perro":
-                if personaje.dinero >= perro.precio:
-                    personaje.ataque = personaje.ataque + perro.bataque
-                    personaje.defensa = personaje.defensa + perro.bdefensa
-                    personaje.saludMaxima = personaje.saludMaxima + perro.bsalud
-                    print("Has comprado " + perro.nombre)
-                    sleep(0.2)
-                    personaje.dinero = personaje.dinero - perro.precio
-                    personaje.mascotas = personaje.mascotas.append(perro) # Insertar un elemento en una lista (list.append)
-                    seguirCiudad()
-                elif personaje.dinero < perro.precio:
-                    print("Dinero insuficiente")
-                    sleep(0.2)
-                    seguirCiudad()
 
-            elif cMascota == "2" or cMascota == "Gato":
-                if personaje.dinero >= gato.precio:
-                    personaje.ataque = personaje.ataque + gato.bataque
-                    personaje.defensa = personaje.defensa + gato.bdefensa
-                    personaje.saludMaxima = personaje.saludMaxima + gato.bsalud
-                    print("Has comprado " + gato.nombre)
-                    sleep(0.2)
-                    personaje.dinero = personaje.dinero - gato.precio
-                    personaje.mascotas = personaje.mascotas.append(gato)
-                    seguirCiudad()
-                elif personaje.dinero < gato.precio:
-                    print("Dinero insuficiente")
-                    sleep(0.2)
-                    seguirCiudad()
+            mascotaEncontrada = False
+            for m in personaje.mascotas:
+                if m["nombre"] == "Perro" and cMascota == "1":
+                    mascotaEncontrada = True
+                if m["nombre"] == "Gato" and cMascota == "2":
+                    mascotaEncontrada = True
+                if m["nombre"] == "Dragon" and cMascota == "3":
+                    mascotaEncontrada = True
 
-            elif cMascota == "3" or cMascota == "Dragon":
-                if personaje.dinero >= dragon.precio:
-                    personaje.ataque = personaje.ataque + dragon.bataque
-                    personaje.defensa = personaje.defensa + dragon.bdefensa
-                    personaje.saludMaxima = personaje.saludMaxima + dragon.bsalud
-                    print("Has comprado " + dragon.nombre)
-                    sleep(0.2)
-                    personaje.dinero = personaje.dinero - dragon.precio
-                    personaje.mascotas = personaje.mascotas.append(dragon)
-                    seguirCiudad()
-                elif personaje.dinero < dragon.precio:
-                    print("Dinero insuficiente")
-                    sleep(0.2)
-                    seguirCiudad()
-
-            else:
+            if mascotaEncontrada:
+                print("Ya tienes esta mascota")
                 seguirCiudad()
 
+            else:
+                if cMascota == "1" or cMascota == "Perro":
+                    if personaje.dinero >= perro.precio:
+                        if perro in personaje.mascotas:
+                            print("No se puede tener mas de 1 perro")
+                        personaje.ataque = personaje.ataque + perro.bataque
+                        personaje.defensa = personaje.defensa + perro.bdefensa
+                        personaje.saludMaxima = personaje.saludMaxima + perro.bsalud
+                        print("Has comprado " + perro.nombre)
+                        sleep(0.2)
+                        personaje.dinero = personaje.dinero - perro.precio
+                        appendInventory(personaje, perro, "", "")
+                        eMascota = input(f"¿Quieres equiparte el {perro.nombre} ?: ").capitalize()  # equiparMascota
+                        if eMascota == "Si":
+                            equipar(personaje, perro, "")
+                        seguirCiudad()
+
+                    elif personaje.dinero < perro.precio:
+                        print("Dinero insuficiente")
+                        sleep(0.2)
+                        seguirCiudad()
+
+                elif cMascota == "2" or cMascota == "Gato":
+                    if personaje.dinero >= gato.precio:
+                        personaje.ataque = personaje.ataque + gato.bataque
+                        personaje.defensa = personaje.defensa + gato.bdefensa
+                        personaje.saludMaxima = personaje.saludMaxima + gato.bsalud
+                        print("Has comprado " + gato.nombre)
+                        sleep(0.2)
+                        personaje.dinero = personaje.dinero - gato.precio
+                        appendInventory(personaje, gato, "", "")
+                        eMascota = input(f"¿Quieres equiparte el {gato.nombre} ?: ").capitalize()
+                        if eMascota == "Si":
+                            equipar(personaje, gato, "")
+                        seguirCiudad()
+
+                    elif personaje.dinero < gato.precio:
+                        print("Dinero insuficiente")
+                        sleep(0.2)
+                        seguirCiudad()
+
+                elif cMascota == "3" or cMascota == "Dragon":
+                    if personaje.dinero >= dragon.precio:
+                        personaje.ataque = personaje.ataque + dragon.bataque
+                        personaje.defensa = personaje.defensa + dragon.bdefensa
+                        personaje.saludMaxima = personaje.saludMaxima + dragon.bsalud
+                        print("Has comprado " + dragon.nombre)
+                        sleep(0.2)
+                        personaje.dinero = personaje.dinero - dragon.precio
+                        appendInventory(personaje, dragon, "", "")
+                        eMascota = input(f"¿Quieres equiparte el {dragon.nombre} ?: ").capitalize()
+                        if eMascota == "Si":
+                            equipar(personaje, dragon, "")
+                        seguirCiudad()
+
+                    elif personaje.dinero < dragon.precio:
+                        print("Dinero insuficiente")
+                        sleep(0.2)
+                        seguirCiudad()
+
+                else:
+                    seguirCiudad()
+
         elif sTienda == "2" or sTienda == "Pociones":
-            pocion1 = Pocion("Pocion de salud pequeña", 35, 15)
+            pocion1 = Pocion("Pocion de salud mini", 35, 15)
             pocion2 = Pocion("Pocion de salud mediana", 80, 40)
             pocion3 = Pocion("Pocion de salud grande", 150, 80)
             cPocion = input("¿Que pocion deseas comprar?:\n1. " + pocion1.nombre +
@@ -326,7 +438,7 @@ def menuCiudad():
                     print("Has comprado " + pocion1.nombre)
                     sleep(0.2)
                     personaje.dinero = personaje.dinero - pocion1.precio
-                    personaje.pociones = personaje.pociones.append(pocion1)
+                    appendInventory(personaje, "", pocion1, "")
                     seguirCiudad()
                 elif personaje.dinero < pocion1.precio:
                     print("Dinero insuficiente")
@@ -338,7 +450,7 @@ def menuCiudad():
                     print("Has comprado " + pocion2.nombre)
                     sleep(0.2)
                     personaje.dinero = personaje.dinero - pocion2.precio
-                    personaje.pociones = personaje.pociones.append(pocion2)
+                    appendInventory(personaje, "", pocion2, "")
                     seguirCiudad()
                 elif personaje.dinero < pocion2.precio:
                     print("Dinero insuficiente")
@@ -350,7 +462,7 @@ def menuCiudad():
                     print("Has comprado " + pocion3.nombre)
                     sleep(0.2)
                     personaje.dinero = personaje.dinero - pocion3.precio
-                    personaje.pociones = personaje.pociones.append(pocion3)
+                    appendInventory(personaje, "", pocion3, "")
                     seguirCiudad()
                 elif personaje.dinero < pocion3.precio:
                     print("Dinero insuficiente")
@@ -388,6 +500,7 @@ def menuCiudad():
             personaje.guardarPartida()
             print("Progreso guardado, gracias por jugar")
             seguirCiudad()
+
         while gPartida == "No":
             ngPartida = input("¿Esta seguro de no guardar su partida?(Si/No): ").capitalize()
             if ngPartida == "Si":  # ngPartida = noguardarPartida
@@ -401,6 +514,7 @@ def menuCiudad():
     else:
         matarMonstruo(personaje)
 
+
 def comprarCasco():
     """
     Crea una instancia para cada casco y le muestra al usuario todos los atributos de los mismos.
@@ -408,31 +522,54 @@ def comprarCasco():
 
     :return:
     """
-    casco1 = Armadura("Gorro de cuero","Canalla",3,15,75)
-    casco2 = Armadura("Tiara","Bruja",5,10,150)
-    casco3 = Armadura("Casco del inmortal","",45,83,480)
-    casco4 = Armadura("Mascara de ladron","Canalla",150,485,2300)
-    casco5 = Armadura("Corona encantada","Bruja",200,400,3000)
+    casco1 = Armadura("Gorro de cuero", "Canalla", 3, 15, 75, False, "casco")
+    casco2 = Armadura("Tiara", "Bruja", 5, 10, 150, False, "casco")
+    casco3 = Armadura("Casco del inmortal", "", 45, 83, 480, False, "casco")
+    casco4 = Armadura("Mascara de ladron", "Canalla", 150, 485, 2300, False, "casco")
+    casco5 = Armadura("Corona encantada", "Bruja", 200, 400, 3000, False, "casco")
     cCasco = input("1. " + casco1.nombre + " " + str(casco1.precio)
-                       + " clase: Canalla" + "\n2. " + casco2.nombre
-                       + " " + str(casco2.precio) + " clase: Bruja" + "\n3. "
-                       + casco3.nombre + " " + str(casco3.precio) + " clase: Todas"
-                       + "\n4.(Legendario) " + casco4.nombre + " " + str(casco4.precio)
-                       + " clase: Canalla" + "\n5.(Legendario) " + casco5.nombre +
-                       " " +str(casco5.precio) + " clase: Bruja\n6. No comprar\n")
+                   + " clase: Canalla" + "\n2. " + casco2.nombre
+                   + " " + str(casco2.precio) + " clase: Bruja" + "\n3. "
+                   + casco3.nombre + " " + str(casco3.precio) + " clase: Todas"
+                   + "\n4.(Legendario) " + casco4.nombre + " " + str(casco4.precio)
+                   + " clase: Canalla" + "\n5.(Legendario) " + casco5.nombre +
+                   " " + str(casco5.precio) + " clase: Bruja\n6. No comprar\n")
+
+    cascoEncontrado = False
+    for c in personaje.mascotas:
+        if c["nombre"] == "Gorro de cuero" and cCasco == "1":
+            cascoEncontrado = True
+        if c["nombre"] == "Tiara" and cCasco == "2":
+            cascoEncontrado = True
+        if c["nombre"] == "Casco del inmortal" and cCasco == "3":
+            cascoEncontrado = True
+        if c["nombre"] == "Mascara de ladron" and cCasco == "4":
+            cascoEncontrado = True
+        if c["nombre"] == "Corona encantada" and cCasco == "5":
+            cascoEncontrado = True
+
+    if cascoEncontrado:
+        print("Ya tienes este casco")
+        seguirCiudad()
+
     if cCasco == "1":
         if personaje.clase != casco1.crequerida:
             print("No cumples con la clase requerida: Canalla")
             sleep(0.2)
             comprarCasco()
+
         elif personaje.clase == casco1.crequerida and personaje.dinero >= casco1.precio:
             personaje.defensa = personaje.defensa + casco1.defensa
             personaje.saludMaxima = personaje.saludMaxima + casco1.salud
             print("Has comprado " + casco1.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - casco1.precio
-            personaje.armaduras = personaje.armaduras.append(casco1)
+            appendInventory(personaje, "", "", casco1)
+            eCasco = input(f"¿Quieres equiparte el {casco1.nombre} ?: ").capitalize()
+            if eCasco == "Si":
+                equipar(personaje, "", casco1)
             seguirCiudad()
+
         elif personaje.clase == casco1.crequerida and personaje.dinero < casco1.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -443,14 +580,19 @@ def comprarCasco():
             print("No cumples con la clase requerida: Bruja")
             sleep(0.2)
             comprarCasco()
+
         elif personaje.clase == casco2.crequerida and personaje.dinero >= casco2.precio:
             personaje.defensa = personaje.defensa + casco2.defensa
             personaje.saludMaxima = personaje.saludMaxima + casco2.salud
             print("Has comprado " + casco2.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - casco2.precio
-            personaje.armaduras = personaje.armaduras.append(casco2)
+            appendInventory(personaje, "", "", casco2)
+            eCasco = input(f"¿Quieres equiparte el {casco2.nombre} ?: ").capitalize()
+            if eCasco == "Si":
+                equipar(personaje, "", casco2)
             seguirCiudad()
+
         elif personaje.clase == casco2.crequerida and personaje.dinero < casco2.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -463,8 +605,12 @@ def comprarCasco():
             print("Has comprado " + casco3.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - casco3.precio
-            personaje.armaduras = personaje.armaduras.append(casco3)
+            appendInventory(personaje, "", "", casco3)
+            eCasco = input(f"¿Quieres equiparte el {casco3.nombre} ?: ").capitalize()
+            if eCasco == "Si":
+                equipar(personaje, "", casco3)
             seguirCiudad()
+
         elif personaje.dinero < casco3.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -475,14 +621,19 @@ def comprarCasco():
             print("No cumples con la clase requerida: Canalla")
             sleep(0.2)
             comprarCasco()
+
         elif personaje.clase == casco4.crequerida and personaje.dinero >= casco4.precio:
             personaje.defensa = personaje.defensa + casco4.defensa
             personaje.saludMaxima = personaje.saludMaxima + casco4.salud
             print("Has comprado " + casco4.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - casco4.precio
-            personaje.armaduras = personaje.armaduras.append(casco4)
+            appendInventory(personaje, "", "", casco4)
+            eCasco = input(f"¿Quieres equiparte el {casco4.nombre} ?: ").capitalize()
+            if eCasco == "Si":
+                equipar(personaje, "", casco4)
             seguirCiudad()
+
         elif personaje.clase == casco4.crequerida and personaje.dinero < casco4.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -493,14 +644,19 @@ def comprarCasco():
             print("No cumples con la clase requerida: Bruja")
             sleep(0.2)
             comprarCasco()
+
         elif personaje.clase == casco5.crequerida and personaje.dinero >= casco5.precio:
             personaje.defensa = personaje.defensa + casco5.defensa
             personaje.saludMaxima = personaje.saludMaxima + casco5.salud
             print("Has comprado " + casco5.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - casco5.precio
-            personaje.armaduras = personaje.armaduras.append(casco5)
+            appendInventory(personaje, "", "", casco5)
+            eCasco = input(f"¿Quieres equiparte el {casco5.nombre} ?: ").capitalize()
+            if eCasco == "Si":
+                equipar(personaje, "", casco5)
             seguirCiudad()
+
         elif personaje.clase == casco5.crequerida and personaje.dinero < casco5.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -508,6 +664,7 @@ def comprarCasco():
     else:
         sleep(0.2)
         seguirCiudad()
+
 
 def comprarPechera():
     """
@@ -517,32 +674,55 @@ def comprarPechera():
 
     :return:
     """
-    pechera1 = Armadura("Toga de cuero","Canalla",15,35,125)
-    pechera2 = Armadura("Armadura oxidada","Bruja",8,25,150)
-    pechera3 = Armadura("Malla reluciente","",70,200,670)
-    pechera4 = Armadura("Ropaje de desertor","Canalla",350,1000,7500)
-    pechera5 = Armadura("Vestimenta abisal","Bruja",285,800,7200)
-    cPechera = input("1. " + pechera1.nombre + " " + pechera1.precio
+    pechera1 = Armadura("Toga de cuero", "Canalla", 15, 35, 125, False, "Pechera")
+    pechera2 = Armadura("Armadura oxidada", "Bruja", 8, 25, 150, False, "Pechera")
+    pechera3 = Armadura("Malla reluciente", "", 70, 200, 670, False, "Pechera")
+    pechera4 = Armadura("Ropaje de desertor", "Canalla", 350, 1000, 7500, False, "Pechera")
+    pechera5 = Armadura("Vestimenta abisal", "Bruja", 285, 800, 7200, False, "Pechera")
+    cPechera = input("1. " + pechera1.nombre + " " + str(pechera1.precio)
                      + " clase: Canalla" + "\n2. " + pechera2.nombre
-                     + pechera2.precio + " clase: Bruja" + "\n3. "
-                     + pechera3.nombre + " " + pechera3.precio +
+                     + str(pechera2.precio) + " clase: Bruja" + "\n3. "
+                     + pechera3.nombre + " " + str(pechera3.precio) +
                      " clase: Todas" + "\n4.(Legendario) " + pechera4.nombre
-                     + " " + pechera4.precio + " clase: Canalla"
+                     + " " + str(pechera4.precio) + " clase: Canalla"
                      + "\n5.(Legendario) " + pechera5.nombre + " "
-                     + pechera5.precio + " clase: Bruja\n6. No comprar\n")
+                     + str(pechera5.precio) + " clase: Bruja\n6. No comprar\n")
+
+    pecheraEncontrada = False
+    for p in personaje.mascotas:
+        if p["nombre"] == "Toga de cuero" and cPechera == "1":
+            pecheraEncontrada = True
+        if p["nombre"] == "Armadura oxidada" and cPechera == "2":
+            pecheraEncontrada = True
+        if p["nombre"] == "Malla reluciente" and cPechera == "3":
+            pecheraEncontrada = True
+        if p["nombre"] == "Ropaje de desertor" and cPechera == "4":
+            pecheraEncontrada = True
+        if p["nombre"] == "Vestimenta abisal" and cPechera == "5":
+            pecheraEncontrada = True
+
+    if pecheraEncontrada:
+        print("Ya tienes esta pechera")
+        seguirCiudad()
+
     if cPechera == "1":
         if personaje.clase != pechera1.crequerida:
             print("No cumples con la clase requerida: Canalla")
             sleep(0.2)
             comprarPechera()
+
         elif personaje.clase == pechera1.crequerida and personaje.dinero >= pechera1.precio:
             personaje.defensa = personaje.defensa + pechera1.defensa
             personaje.saludMaxima = personaje.saludMaxima + pechera1.salud
             print("Has comprado " + pechera1.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pechera1.precio
-            personaje.armaduras = personaje.armaduras.append(pechera1)
+            appendInventory(personaje, "", "", pechera1)
+            ePechera = input(f"¿Quieres equiparte la {pechera1.nombre} ?: ").capitalize()
+            if ePechera == "Si":
+                equipar(personaje, "", pechera1)
             seguirCiudad()
+
         elif personaje.clase == pechera1.crequerida and personaje.dinero < pechera1.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -553,14 +733,19 @@ def comprarPechera():
             print("No cumples con la clase requerida: Bruja")
             sleep(0.2)
             comprarPechera()
+
         elif personaje.clase == pechera2.crequerida and personaje.dinero >= pechera2.precio:
             personaje.defensa = personaje.defensa + pechera2.defensa
             personaje.saludMaxima = personaje.saludMaxima + pechera2.salud
             print("Has comprado " + pechera2.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pechera2.precio
-            personaje.armaduras = personaje.armaduras.append(pechera2)
+            appendInventory(personaje, "", "", pechera2)
+            ePechera = input(f"¿Quieres equiparte la {pechera2.nombre} ?: ").capitalize()
+            if ePechera == "Si":
+                equipar(personaje, "", pechera2)
             seguirCiudad()
+
         elif personaje.clase == pechera2.crequerida and personaje.dinero < pechera2.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -573,8 +758,12 @@ def comprarPechera():
             print("Has comprado " + pechera3.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pechera3.precio
-            personaje.armaduras = personaje.armaduras.append(pechera3)
+            appendInventory(personaje, "", "", pechera3)
+            ePechera = input(f"¿Quieres equiparte la {pechera3.nombre} ?: ").capitalize()
+            if ePechera == "Si":
+                equipar(personaje, "", pechera3)
             seguirCiudad()
+
         elif personaje.dinero < pechera3.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -585,31 +774,42 @@ def comprarPechera():
             print("No cumples la clase requerida: Canalla")
             sleep(0.2)
             comprarPechera()
+
         elif personaje.clase == pechera4.crequerida and personaje.dinero >= pechera4.precio:
             personaje.defensa = personaje.defensa + pechera4.defensa
             personaje.saludMaxima = personaje.saludMaxima + pechera4.salud
             print("Has comprado " + pechera4.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pechera4.precio
-            personaje.armaduras = personaje.armaduras.append(pechera4)
+            appendInventory(personaje, "", "", pechera4)
+            ePechera = input(f"¿Quieres equiparte el {pechera4.nombre} ?: ").capitalize()
+            if ePechera == "Si":
+                equipar(personaje, "", pechera4)
             seguirCiudad()
+
         elif personaje.clase == pechera4.crequerida and personaje.dinero < pechera4.precio:
             print("Dinero insuficiente")
             sleep(0.2)
             comprarPechera()
+
     elif cPechera == "5":
         if personaje.clase != pechera5.crequerida:
             print("No cumples la clase requerida: Bruja")
             sleep(0.2)
             comprarPechera()
+
         elif personaje.clase == pechera5.crequerida and personaje.dinero >= pechera5.precio:
             personaje.defensa = personaje.defensa + pechera5.defensa
             personaje.saludMaxima = personaje.saludMaxima + pechera5.salud
             print("Has comprado " + pechera5.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pechera5.precio
-            personaje.armaduras = personaje.armaduras.append(pechera5)
+            appendInventory(personaje, "", "", pechera5)
+            ePechera = input(f"¿Quieres equiparte la {pechera5.nombre} ?: ").capitalize()
+            if ePechera == "Si":
+                equipar(personaje, "", pechera5)
             seguirCiudad()
+
         elif personaje.clase == pechera5.crequerida and personaje.dinero < pechera5.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -618,6 +818,7 @@ def comprarPechera():
         sleep(0.2)
         seguirCiudad()
 
+
 def comprarPantalon():
     """
     Crea una instancia para cada pantalon y le muestra al usuario todos los atributos de los mismos.
@@ -625,32 +826,55 @@ def comprarPantalon():
 
     :return:
     """
-    pantalon1 = Armadura("Pantalones de asesino","Canalla",8,23,90)
-    pantalon2 = Armadura("Grebas de amazona","Bruja",5,17,85)
-    pantalon3 = Armadura("Pantalones de la orden",60,170,585)
-    pantalon4 = Armadura("Grebas fantasma","Canalla",300,875,6315)
-    pantalon5 = Armadura("Pantalones de asesino de dragones","Bruja",238,690,6100)
-    cPantalon = input("1. " + pantalon1.nombre + " " + pantalon1.precio
+    pantalon1 = Armadura("Pantalones de asesino", "Canalla", 8, 23, 90, False, "Pantalon")
+    pantalon2 = Armadura("Grebas de amazona", "Bruja", 5, 17, 85, False, "Pantalon")
+    pantalon3 = Armadura("Pantalones de la orden", 60, 170, 585, False, "Pantalon")
+    pantalon4 = Armadura("Grebas fantasma", "Canalla", 300, 875, 6315, False, "Pantalon")
+    pantalon5 = Armadura("Pantalones de asesino de dragones", "Bruja", 238, 690, 6100, False, "Pantalon")
+    cPantalon = input("1. " + pantalon1.nombre + " " + str(pantalon1.precio)
                       + " clase: Canalla" + "\n2. " + pantalon2.nombre
-                      + " " + pantalon2.precio + " clase: Bruja" + "\n3. "
-                      + pantalon3.nombre + " " + pantalon3.precio +
+                      + " " + str(pantalon2.precio) + " clase: Bruja" + "\n3. "
+                      + pantalon3.nombre + " " + str(pantalon3.precio) +
                       " clase: Todas" + "\n4.(Legendario) " + pantalon4.nombre +
-                      " " + pantalon4.precio + " clase: Canalla" +
+                      " " + str(pantalon4.precio) + " clase: Canalla" +
                       "\n5.(Legendario) " + pantalon5.nombre + " " +
-                      pantalon5.precio + " clase: Bruja\n6. No comprar\n")
+                      str(pantalon5.precio) + " clase: Bruja\n6. No comprar\n")
+
+    pantalonEncontrado = False
+    for p in personaje.mascotas:
+        if p["nombre"] == "Pantalones de asesino" and cPantalon == "1":
+            pantalonEncontrado = True
+        if p["nombre"] == "Grebas de amazona" and cPantalon == "2":
+            pantalonEncontrado = True
+        if p["nombre"] == "Pantalones de la orden" and cPantalon == "3":
+            pantalonEncontrado = True
+        if p["nombre"] == "Grebas fantasma" and cPantalon == "4":
+            pantalonEncontrado = True
+        if p["nombre"] == "Pantalones de asesino de dragones" and cPantalon == "5":
+            pantalonEncontrado = True
+
+    if pantalonEncontrado:
+        print("Ya tienes este pantalon")
+        seguirCiudad()
+
     if cPantalon == "1":
         if personaje.clase != pantalon1.crequerida:
             print("No cumples la clase requerida: Canalla")
             sleep(0.2)
             comprarPantalon()
+
         elif personaje.clase == pantalon1.crequerida and personaje.dinero >= pantalon1.precio:
             personaje.defensa = personaje.defensa + pantalon1.defensa
             personaje.saludMaxima = personaje.saludMaxima + pantalon1.salud
             print("Has comprado " + pantalon1.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pantalon1.precio
-            personaje.armaduras = personaje.armaduras.append(pantalon1)
+            appendInventory(personaje, "", "", pantalon1)
+            ePantalon = input(f"¿Quieres equiparte el {pantalon1.nombre} ?: ").capitalize()
+            if ePantalon == "Si":
+                equipar(personaje, "", pantalon1)
             seguirCiudad()
+
         elif personaje.clase == pantalon1.crequerida and personaje.dinero < pantalon1.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -661,14 +885,19 @@ def comprarPantalon():
             print("No cumples la clase requerida: Bruja")
             sleep(0.2)
             comprarPantalon()
+
         elif personaje.clase == pantalon2.crequerida and personaje.dinero >= pantalon2.precio:
             personaje.defensa = personaje.defensa + pantalon2.defensa
             personaje.saludMaxima = personaje.saludMaxima + pantalon2.salud
             print("Has comprado " + pantalon2.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pantalon2.precio
-            personaje.armaduras = personaje.armaduras.append(pantalon2)
+            appendInventory(personaje, "", "", pantalon2)
+            ePantalon = input(f"¿Quieres equiparte el {pantalon2.nombre} ?: ").capitalize()
+            if ePantalon == "Si":
+                equipar(personaje, "", pantalon2)
             seguirCiudad()
+
         elif personaje.clase == pantalon2.crequerida and personaje.dinero < pantalon2.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -681,42 +910,59 @@ def comprarPantalon():
             print("Has comprado " + pantalon3.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pantalon3.precio
-            personaje.armaduras = personaje.armaduras.append(pantalon3)
+            appendInventory(personaje, "", "", pantalon3)
+            ePantalon = input(f"¿Quieres equiparte el {pantalon3.nombre} ?: ").capitalize()
+            if ePantalon == "Si":
+                equipar(personaje, "", pantalon3)
             seguirCiudad()
+
         elif personaje.dinero < pantalon3.precio:
             print("Dinero insuficiente")
             sleep(0.2)
             comprarPantalon()
+
+
     elif cPantalon == "4":
         if personaje.clase != pantalon4.crequerida:
             print("No cumples con la clase requerida: Canalla")
             sleep(0.2)
             comprarPantalon()
+
         elif personaje.clase == pantalon4.crequerida and personaje.dinero >= pantalon4.precio:
             personaje.defensa = personaje.defensa + pantalon4.defensa
             personaje.saludMaxima = personaje.saludMaxima + pantalon4.salud
             print("Has comprado " + pantalon4.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pantalon4.precio
-            personaje.armaduras = personaje.armaduras.append(pantalon4)
+            appendInventory(personaje, "", "", pantalon4)
+            ePantalon = input(f"¿Quieres equiparte el {pantalon4.nombre} ?: ").capitalize()
+            if ePantalon == "Si":
+                equipar(personaje, "", pantalon4)
             seguirCiudad()
-        elif personaje.clase != pantalon4.crequerida and personaje.dinero < pantalon4.precio:
+
+        elif personaje.clase == pantalon4.crequerida and personaje.dinero < pantalon4.precio:
             print("Dinero insuficiente")
             sleep(0.2)
             comprarPantalon()
+
     elif cPantalon == "5":
         if personaje.clase != pantalon5.crequerida:
             print("No cumples con la clase requerida: Bruja")
             sleep(0.2)
             comprarPantalon()
+
         elif personaje.clase == pantalon5.crequerida and personaje.dinero >= pantalon5.precio:
             personaje.defensa = personaje.defensa + pantalon5.defensa
             personaje.saludMaxima = personaje.saludMaxima + pantalon5.salud
             print("Has comprado " + pantalon5.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - pantalon5.precio
-            personaje.armaduras = personaje.armaduras.append(pantalon5)
+            appendInventory(personaje, "", "", pantalon5)
+            ePantalon = input(f"¿Quieres equiparte el {pantalon5.nombre} ?: ").capitalize()
+            if ePantalon == "Si":
+                equipar(personaje, "", pantalon5)
             seguirCiudad()
+
         elif personaje.clase == pantalon5.crequerida and personaje.dinero < pantalon5.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -725,6 +971,7 @@ def comprarPantalon():
         sleep(0.2)
         seguirCiudad()
 
+
 def comprarBotas():
     """
     Crea una instancia para cada bota y le muestra al usuario todos los atributos de los mismos.
@@ -732,31 +979,54 @@ def comprarBotas():
 
     :return:
     """
-    botas1 = Armadura("Botas de cuero","Canalla",2,10,50)
-    botas2 = Armadura("Zapatos de caballeria","Bruja",3,7,55)
-    botas3 = Armadura("Zapatillas de runner","",30,70,400)
-    botas4 = Armadura("Botas sigilosas","Canalla",125,420,2000)
-    botas5 = Armadura("Botas de la ruina","Bruja",100,325,2700)
-    cBotas = input("1. " + botas1.nombre + " " + botas1.precio +
+    botas1 = Armadura("Botas de cuero", "Canalla", 2, 10, 50, False, "Botas")
+    botas2 = Armadura("Zapatos de caballeria", "Bruja", 3, 7, 55, False, "Botas")
+    botas3 = Armadura("Zapatillas de runner", "", 30, 70, 400, False, "Botas")
+    botas4 = Armadura("Botas sigilosas", "Canalla", 125, 420, 2000, False, "Botas")
+    botas5 = Armadura("Botas de la ruina", "Bruja", 100, 325, 2700, False, "Botas")
+    cBotas = input("1. " + botas1.nombre + " " + str(botas1.precio) +
                    " clase: Canalla" + "\n2. " + botas2.nombre + " "
-                   + botas2.precio + " clase: Bruja" + "\n3. " +
-                   botas3.nombre + " " + botas3.precio + " clase: Todas"
-                   + "\n4. " + botas4.nombre + " " + botas4.precio +
+                   + str(botas2.precio) + " clase: Bruja" + "\n3. " +
+                   botas3.nombre + " " + str(botas3.precio) + " clase: Todas"
+                   + "\n4. " + botas4.nombre + " " + str(botas4.precio) +
                    " clase: Canalla" + "\n5. " + botas5.nombre + " " +
-                   botas5.precio + " clase: Bruja\n6. No comprar\n")
+                   str(botas5.precio) + " clase: Bruja\n6. No comprar\n")
+
+    botasEncontradas = False
+    for b in personaje.mascotas:
+        if b["nombre"] == "Botas de cuero" and cBotas == "1":
+            botasEncontradas = True
+        if b["nombre"] == "Zapatos de caballeria" and cBotas == "2":
+            botasEncontradas = True
+        if b["nombre"] == "Zapatillas de runner" and cBotas == "3":
+            botasEncontradas = True
+        if b["nombre"] == "Botas sigilosas" and cBotas == "4":
+            botasEncontradas = True
+        if b["nombre"] == "Botas de la ruina" and cBotas == "5":
+            botasEncontradas = True
+
+    if botasEncontradas:
+        print("Ya tienes estas botas")
+        seguirCiudad()
+
     if cBotas == "1":
         if personaje.clase != botas1.crequerida:
             print("No cumples con la clase requerida: Canalla")
             sleep(0.2)
             comprarBotas()
+
         elif personaje.clase == botas1.crequerida and personaje.dinero >= botas1.precio:
             personaje.defensa = personaje.defensa + botas1.defensa
             personaje.saludMaxima = personaje.saludMaxima + botas1.salud
             print("Has comprado " + botas1.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - botas1.precio
-            personaje.armaduras = personaje.armaduras.append(botas1)
+            appendInventory(personaje, "", "", botas1)
+            eBotas = input(f"¿Quieres equiparte el {botas1.nombre} ?: ").capitalize()
+            if eBotas == "Si":
+                equipar(personaje, "", botas1)
             seguirCiudad()
+
         elif personaje.clase == botas1.crequerida and personaje.dinero < botas1.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -767,14 +1037,19 @@ def comprarBotas():
             print("No cumples con la clase requerida: Bruja")
             sleep(0.2)
             comprarBotas()
+
         elif personaje.clase == botas2.crequerida and personaje.dinero >= botas2.precio:
             personaje.defensa = personaje.defensa + botas2.defensa
             personaje.saludMaxima = personaje.saludMaxima + botas2.salud
             print("Has comprado " + botas2.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - botas2.precio
-            personaje.armaduras = personaje.armaduras.append(botas2)
+            appendInventory(personaje, "", "", botas2)
+            eBotas = input(f"¿Quieres equiparte el {botas2.nombre} ?: ").capitalize()
+            if eBotas == "Si":
+                equipar(personaje, "", botas2)
             seguirCiudad()
+
         elif personaje.clase == botas2.crequerida and personaje.dinero < botas2.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -787,8 +1062,12 @@ def comprarBotas():
             print("Has comprado " + botas3.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - botas3.precio
-            personaje.armaduras = personaje.armaduras.append(botas3)
+            appendInventory(personaje, "", "", botas3)
+            eBotas = input(f"¿Quieres equiparte el {botas3.nombre} ?: ").capitalize()
+            if eBotas == "Si":
+                equipar(personaje, "", botas3)
             seguirCiudad()
+
         elif personaje.dinero < botas3.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -799,14 +1078,19 @@ def comprarBotas():
             print("No cumples con la clase requerida: Canalla")
             sleep(0.2)
             comprarBotas()
+
         elif personaje.clase == botas4.crequerida and personaje.dinero >= botas4.precio:
             personaje.defensa = personaje.defensa + botas4.defensa
             personaje.saludMaxima = personaje.saludMaxima + botas4.salud
             print("Has comprado " + botas4.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - botas4.precio
-            personaje.armaduras = personaje.armaduras.append(botas4)
+            appendInventory(personaje, "", "", botas4)
+            eBotas = input(f"¿Quieres equiparte el {botas4.nombre} ?: ").capitalize()
+            if eBotas == "Si":
+                equipar(personaje, "", botas4)
             seguirCiudad()
+
         elif personaje.clase == botas4.crequerida and personaje.dinero < botas4.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -817,14 +1101,19 @@ def comprarBotas():
             print("No cumples con la clase requerida: Bruja")
             sleep(0.2)
             comprarBotas()
+
         elif personaje.clase == botas5.crequerida and personaje.dinero >= botas5.precio:
             personaje.defensa = personaje.defensa + botas5.defensa
             personaje.saludMaxima = personaje.saludMaxima + botas5.salud
             print("Has comprado " + botas5.nombre)
             sleep(0.2)
             personaje.dinero = personaje.dinero - botas5.precio
-            personaje.armaduras = personaje.armaduras.append(botas5)
+            appendInventory(personaje, "", "", botas5)
+            eBotas = input(f"¿Quieres equiparte el {botas5.nombre} ?: ").capitalize()
+            if eBotas == "Si":
+                equipar(personaje, "", botas5)
             seguirCiudad()
+
         elif personaje.clase == botas5.crequerida and personaje.dinero < botas5.precio:
             print("Dinero insuficiente")
             sleep(0.2)
@@ -832,6 +1121,7 @@ def comprarBotas():
     else:
         sleep(0.2)
         seguirCiudad()
+
 
 # Inicio del juego
 cPartida = input("(Si/No)¿Deseas cargar una partida?: ").capitalize()
@@ -843,7 +1133,7 @@ if cPartida == "Si":
     if personaje:
         menuCiudad()
 
-if not personaje: # == None
+if not personaje:  # == None
     sleep(0.2)
     nombre = input("Introduce tu nombre: ").capitalize()
     eclase = 0
@@ -864,15 +1154,12 @@ if not personaje: # == None
         else:
             print("No es una clase valida")
 
-    personaje = Personaje(1, 0, nombre, clase, ataque, 0, salud, defensa, saludMaxima, [], [], [])
+    personaje = Personaje(1, 0, nombre, clase, ataque, 0, salud, defensa, saludMaxima, [], [], [], 20)
     print("Se ha creado un personaje llamado " + personaje.nombre + " de clase " + personaje.clase)
     sleep(1)
 
 matarMonstruo(personaje)
 
-
-# TODO Crear continentes y dentro de cada continente añadir ciudades con diferentes funcionalidades
-# TODO Separar las clases y funciones en diferentes .py con nombres identificativos
 """
 else:
     print("Gracias por jugar!!!\n" + personaje.nombre +

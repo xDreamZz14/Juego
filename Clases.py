@@ -1,6 +1,7 @@
 import json
 from time import sleep
 
+
 class Personaje:
     """
     Representa al personaje.
@@ -18,9 +19,12 @@ class Personaje:
     mascotas (str): Lista que contiene el personaje, por defecto esta vacia. Aumentan los parametros del personaje
     pociones (str): Lista del personaje, pueden comprarse y recuperar salud. Por defecto esta vacia
     armaduras (str): Lista del personaje, pueden equiparse cambiando los parametros del personaje. Por defecto esta vacia
+    maxExp (int): Valor al que la experiencia de el personaje tiene que llegar para subir de nivel.
 
     """
-    def __init__(self, nivel, exp, nombre, clase, ataque, dinero, salud, defensa, saludMaxima, mascotas, pociones, armaduras):
+
+    def __init__(self, nivel, exp, nombre, clase, ataque, dinero, salud, defensa, saludMaxima, mascotas, pociones,
+                 armaduras, maxExp):
         """
         Inicializa un objeto de tipo Personaje.
 
@@ -37,6 +41,7 @@ class Personaje:
         :param mascotas:
         :param pociones:
         :param armaduras:
+        :param maxExp:
         """
         self.nivel = nivel
         self.exp = exp
@@ -50,6 +55,7 @@ class Personaje:
         self.mascotas = mascotas
         self.pociones = pociones
         self.armaduras = armaduras
+        self.maxExp = maxExp
 
     def ganarExp(self, cantidad):
         """
@@ -61,9 +67,10 @@ class Personaje:
         :return:
         """
         self.exp = self.exp + cantidad
-        while self.exp >= 20:
+        while self.exp >= self.maxExp:
             self.nivel = self.nivel + 1
-            self.exp = self.exp - 20
+            self.exp = self.exp - self.maxExp
+            self.maxExp = self.maxExp * 1.5
             if self.clase == "Bruja":
                 self.ataque = self.ataque + 2
                 self.salud = self.salud + 8
@@ -103,22 +110,24 @@ class Personaje:
 
         :return:
         """
+
         savePersonaje = {
-            "nombre":self.nombre,
-            "nivel":self.nivel,
-            "exp":self.exp,
-            "clase":self.clase,
-            "ataque":self.ataque,
-            "dinero":self.dinero,
-            "salud":self.salud,
-            "defensa":self.defensa,
-            "saludMaxima":self.saludMaxima,
-            "mascotas":self.mascotas,
-            "pociones":self.pociones,
-            "armaduras":self.armaduras
+            "nombre": self.nombre,
+            "nivel": self.nivel,
+            "exp": self.exp,
+            "maxExp": self.maxExp,
+            "clase": self.clase,
+            "ataque": self.ataque,
+            "dinero": self.dinero,
+            "salud": self.salud,
+            "defensa": self.defensa,
+            "saludMaxima": self.saludMaxima,
+            "mascotas": self.mascotas,
+            "pociones": self.pociones,
+            "armaduras": self.armaduras
         }
         with open("Save " + self.nombre + ".json", "w") as json_file:
-            json.dump(savePersonaje,json_file,indent=4)
+            json.dump(savePersonaje, json_file, indent=4)
 
     def guardarPartidaTxt(self):
         """
@@ -130,41 +139,43 @@ class Personaje:
         with open("Save " + self.nombre + ".txt", "w") as save_file:
             save_file.write(str(self.nivel) + "," +
                             str(self.exp) + "," +
+                            str(self.maxExp) + "," +
                             self.nombre + "," +
                             self.clase + "," +
                             str(self.ataque) + "," +
-                                str(self.dinero) + "," +
-                                str(self.salud) + "," +
-                                str(self.defensa) + "," +
-                                str(self.saludMaxima) + "," + str(self.mascotas) +
-                             "," + str(self.pociones) + "," + str(self.armaduras))
+                            str(self.dinero) + "," +
+                            str(self.salud) + "," +
+                            str(self.defensa) + "," +
+                            str(self.saludMaxima) + "," + str(self.mascotas) +
+                            "," + str(self.pociones) + "," + str(self.armaduras))
 
     def usarPocion(self):
         """
-        Metodo del personaje. Sirve para recuperar salud usando pociones almacenadas self.pociones.
+        Metodo del personaje. Sirve para recuperar salud usando pociones almacenadas en self.pociones.
         En caso de no tener ninguna se lo indica al usuario.
         Si la salud recuperada supera a la saludMaxima, actualiza self.salud para tener el valor maximo (self.saludMaxima)
-
-        :return:
         """
         if not self.pociones:
             print("No hay pociones en el inventario")
             sleep(0.5)
         else:
             pocion = input(f"¿Que pocion deseas usar?: {self.pociones}").capitalize()
-            if pocion not in self.pociones:
+            foundPot = False
+            for pot in self.pociones:
+                if pot["nombre"] == pocion:
+                    self.salud += pot["crecuperacion"]
+                    self.pociones.remove(pot)
+                    print(self.pociones)
+                    print(f"Has recuperado {pot['crecuperacion']} de salud")
+                    foundPot = True
+                    if self.salud > self.saludMaxima:
+                        self.salud = self.saludMaxima
+
+
+            if foundPot == False:
                 print(f"No tienes ninguna {pocion} ")
                 sleep(1)
                 self.usarPocion()
-            else:
-                for pot in self.pociones:
-                    if pocion == pot.nombre: #pot.content.capitalize()
-                        self.salud += pot.crecuperacion
-                        self.pociones.remove(pot)
-                        print(f"Has recuperado {pot.crecuperacion} de salud")
-                if self.salud > self.saludMaxima:
-                    self.salud = self.saludMaxima
-
 
 
 class Monstruo:
@@ -179,6 +190,7 @@ class Monstruo:
     exp (int): Experiencia que otorga al personaje cuando la salud de Monstruo llega a 0.
     ataque (int): Ataque que contiene Monstruo. Sirve para quitar puntos de salud al Personaje.
     """
+
     def __init__(self, nombre, salud, drop, exp, ataque):  # drop = oro
         """
         Argumentos:
@@ -231,8 +243,10 @@ class Mascota:
     bsalud (int): Bufo de salud. Cuando el usuario compra la Mascota, suma su salud a la de Personaje
     bdefensa (int): Bufo de defensa. Cuando el usuario compra la Mascota, suma su defensa a la de Personaje
     precio (int): Costo de Mascota que se indica al usuario en el programa
+    equipped (bool): Indica si la mascota esta equipada actualmente
     """
-    def __init__(self, nombre, bataque, bsalud, bdefensa, precio):  # b = buff
+
+    def __init__(self, nombre, bataque, bsalud, bdefensa, precio, equipped):  # b = buff
         """
         Argumentos:
         :param nombre:
@@ -240,12 +254,14 @@ class Mascota:
         :param bsalud:
         :param bdefensa:
         :param precio:
+        :param equipped:
         """
         self.nombre = nombre
         self.bataque = bataque
         self.bsalud = bsalud
         self.bdefensa = bdefensa
         self.precio = precio
+        self.equipped = equipped
 
 
 class Pocion:
@@ -258,6 +274,7 @@ class Pocion:
     precio (int): Precio requerido para comprar Pocion, indicado al usuario en el programa
 
     """
+
     def __init__(self, nombre, crecuperacion, precio):  # c = cantidad
         """
         Argumentos:
@@ -270,7 +287,6 @@ class Pocion:
         self.precio = precio
 
 
-
 class Armadura:
     """
     Representa a las Armaduras instanciadas
@@ -281,13 +297,29 @@ class Armadura:
     defensa (int): Defensa que contiene Armadura, añadida al usuario al comprar
     salud (int): Salud que contiene Armadura, añadida al usuario al comprar
     precio (int): Precio requerido para comprar Armadura
+    equipped (bool): Indica si la armadura esta equipada actualmente
+    tipo (str): Valor que muestra que tipo de armadura es (casco, pechera, pantalon, botas)
     """
-    def __init__(self,nombre,crequerida,defensa,salud,precio): # c = clase
+
+    def __init__(self, nombre, crequerida, defensa, salud, precio, equipped, tipo):  # c = clase
+        """
+        Argumentos:
+        :param nombre:
+        :param crequerida:
+        :param defensa:
+        :param salud:
+        :param precio:
+        :param equipped:
+        :param tipo:
+        """
         self.nombre = nombre
         self.crequerida = crequerida
         self.defensa = defensa
         self.salud = salud
         self.precio = precio
+        self.equipped = equipped
+        self.tipo = tipo
+
 
 """
 class Ciudad:

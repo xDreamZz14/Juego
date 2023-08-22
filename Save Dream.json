@@ -2,13 +2,50 @@
     "nombre": "Dream",
     "nivel": 2,
     "exp": 0,
+    "maxExp": 30,
     "clase": "Canalla",
-    "ataque": 7,
-    "dinero": 13,
-    "salud": 25,
-    "defensa": 12,
-    "saludMaxima": 45,
-    "mascotas": [],
-    "pociones": [],
-    "armaduras": []
+    "ataque": 291,
+    "dinero": 14665,
+    "salud": 888,
+    "defensa": 422,
+    "saludMaxima": 896,
+    "mascotas": [
+        {
+            "nombre": "Perro",
+            "bataque": 2,
+            "bsalud": 5,
+            "bdefensa": 1,
+            "equipped": false
+        },
+        {
+            "nombre": "Gato",
+            "bataque": 5,
+            "bsalud": 3,
+            "bdefensa": 0,
+            "equipped": false
+        },
+        {
+            "nombre": "Dragon",
+            "bataque": 45,
+            "bsalud": 70,
+            "bdefensa": 18,
+            "equipped": true
+        }
+    ],
+    "pociones": [
+        {
+            "nombre": "Pocion de salud grande",
+            "crecuperacion": 150
+        }
+    ],
+    "armaduras": [
+        {
+            "nombre": "Mascara de ladron",
+            "salud": 485,
+            "defensa": 150,
+            "precio": 2300,
+            "equipped": true,
+            "tipo": "casco"
+        }
+    ]
 }
